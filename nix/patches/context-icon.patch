@@ -1,0 +1,15 @@
+diff --git a/packages/coding-agent/src/modes/theme/symbols.ts b/packages/coding-agent/src/modes/theme/symbols.ts
+index 1d3a9e0..b83d00a 100644
+--- a/packages/coding-agent/src/modes/theme/symbols.ts
++++ b/packages/coding-agent/src/modes/theme/symbols.ts
+@@ -773,8 +773,8 @@ const nerdSymbols: SymbolMap = {
+ 	"icon.pin": "\uf08d",
+ 	// pick:  | alt: ⊛ ◍ 
+ 	"icon.tokens": "\ue26b",
+-	// pick:  | alt: ◫ ▦
+-	"icon.context": "\ue70f",
++	// pick:  (nf-cod-window)
++	"icon.context": "\ueb7f",
+ 	// pick:  | alt: $ ¢
+ 	"icon.cost": "\uf155",
+ 	// pick: 󰙺 (nf-md-currency_usd_off)

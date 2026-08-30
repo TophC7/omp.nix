@@ -1,4 +1,8 @@
-{ contextMode, omp }:
+{
+  contextMode,
+  omp,
+  ompPackage,
+}:
 {
   config,
   lib,
@@ -67,6 +71,8 @@ in
   imports = [ omp.homeManagerModules.default ];
 
   config = lib.mkIf config.programs.omp.enable {
+    programs.omp.package = lib.mkDefault ompPackage;
+
     programs.omp.settings = {
       setupVersion = lib.mkDefault 2;
 
