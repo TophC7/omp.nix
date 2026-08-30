@@ -1,64 +1,100 @@
 # omp.nix
 
-Toph's declarative [Oh My Pi](https://github.com/can1357/oh-my-pi) setup.
+Toph's [Oh My Pi](https://github.com/can1357/oh-my-pi) setup, owned by Nix: package, settings, agent prompt, workflow commands, scout agents, and the Context Mode MCP server, reproducible without a global npm install.
 
-This configuration provides:
+Upstream OMP already ships its own Home Manager module and most of the runtime. This repo is the personal layer on top: opinionated defaults, a small set of workflows worth keeping, and one pinned MCP server.
 
-- pinned upstream OMP and Context Mode packages;
-- a Home Manager module wrapping OMP's native module;
-- Nix-managed Context Mode CLI, OMP plugin, and MCP registration;
-- native Caveman and Ponytail prompt toggles;
-- `/cleanup` with dedicated reuse, quality, and efficiency scouts;
-- `/review:adversarial` with six dedicated scouts, structured synthesis, and selected-fix triage;
-- `/pr` with exact committed-diff evidence, guarded branch handling, and native GitHub creation;
-- baseline model, thinking, appearance, and notification settings;
-- Toph's global Soul at `~/.omp/agent/AGENTS.md`;
-- module and package checks.
+## What this provides
+
+- **Upstream OMP, pinned** through `inputs.omp`, re-exported as packages, apps, and checks for `x86_64-linux`.
+- **A Home Manager module** that imports upstream's module and layers personal defaults over it — every option stays overridable (`lib.mkDefault` throughout).
+- **Global agent identity** through `omp/AGENTS.md`, installed as `~/.omp/agent/AGENTS.md`.
+- **Two prompt toggles** (`/caveman`, `/ponytail`) that persist across sessions and branches.
+- **Two scout swarms** for review and cleanup, plus a PR command.
+- **Context Mode** built from a pinned source rev with bun2nix and registered as both an MCP server and an OMP plugin.
 
 ## Use
 
+Add the flake input:
+
 ```nix
 {
-  inputs.omp-nix.url = "ssh://git@git.ryot.foo:222/toph/omp.nix.git";
+  inputs.omp-nix.url = "github:tophc7/omp.nix";
+}
+```
 
-  # In Home Manager:
+Import the Home Manager module:
+
+```nix
+{
   imports = [ inputs.omp-nix.homeManagerModules.default ];
+
   programs.omp.enable = true;
 }
 ```
 
-`programs.omp.package` and `programs.omp.settings` remain available from OMP's upstream Home Manager module. Consumer definitions can override this flake's baseline settings normally.
+There are no options of our own. `programs.omp.*` is upstream's option set; anything set here is a default you can override, including `package` and every key under `settings`.
 
-The flake and Home Manager module currently support `x86_64-linux`.
+## What Nix owns
 
-## Context Mode
+`nix/default.nix` writes the personal half of `programs.omp.settings`:
 
-Context Mode 1.0.169 is built from its tagged upstream release. The module installs its CLI, links its native OMP plugin under `~/.omp/plugins/node_modules`, and merges the MCP server entry into OMP's writable `mcp.json` during Home Manager activation. Unrelated MCP servers and plugin dependencies are preserved.
+- discovery isolated to native OMP sources and OMP-installed plugins — every foreign provider (`claude`, `codex`, `cursor`, `gemini`, `vscode`, `mcp-json`, …) is disabled;
+- `openai-codex/gpt-5.6-sol` as default model, `high` thinking, prose-only thinking blocks;
+- `yolo` tool approval, Bash on, Python eval off with a session-scoped kernel;
+- quiet startup, nerd symbols, Claude-shaped composer, token usage and turn time on screen;
+- completion/error/ask desktop notifications on.
 
-Context Mode's databases remain mutable runtime state under `~/.omp/context-mode`; Nix does not own or replace them.
+It also links `omp/` into `~/.omp/agent/` and installs Context Mode into the user profile.
+
+## Workflows
+
+| Command | What it does |
+| --- | --- |
+| `/review:adversarial [target]` | Acquires a review target — PR, merge base, staged/unstaged Git, Jujutsu working copy, a commit, paths, or an external repo — then runs six read-only scouts (architecture, reuse, idiom, quality, efficiency, comments) in one batch, synthesizes a verdict, and triages every actionable finding through one `ask` call before applying the chosen repairs. |
+| `/cleanup [focus]` | Pre-commit polish. Captures the full `git diff HEAD`, runs three scouts (reuse, quality, efficiency), applies only clearly-correct findings, and reports applied / skipped / worth-a-look. |
+| `/pr [guidance]` | Drafts and opens a GitHub PR from committed merge-base changes. Treats `dev/*` as local-only and creates a `pr/*` pointer instead, never force-pushes, pushes at most once, and creates the PR through the native `github` tool. |
+
+All three stop short of staging, committing, or pushing your work; review and cleanup leave the tree for you to inspect.
+
+`/review:adversarial` is an extension so the prompt can be sent as a real user turn after `waitForIdle`; `/cleanup` and `/pr` are plain command markdown.
 
 ## Prompt toggles
 
-Caveman and Ponytail load as native OMP extensions. Both default to enabled and expose `/caveman [on|off]` and `/ponytail [on|off]`; their defaults persist under `~/.omp/agent`.
+| Toggle | Effect |
+| --- | --- |
+| `/caveman [on\|off]` | Terse register: drops articles, filler, and hedging while keeping technical substance and code intact. |
+| `/ponytail [on\|off]` | Lazy-senior heuristics: reuse before writing, stdlib before dependency, no speculative abstraction — without letting line count excuse duplication or weak seams. |
 
-## Cleanup command
+Both are on by default and share `omp/extensions/lib/prompt-toggle.ts`: state lives in `~/.omp/agent/<name>.json`, is appended to the session as an entry, and is restored on session start, switch, branch, and tree navigation so a forked conversation keeps the register it was written in.
 
-`/cleanup [focus]` reviews the complete working-tree diff with three dedicated read-only scouts running in parallel, then applies only safe, in-scope findings. The command preserves the original reuse, quality, and efficiency passes and never stages or commits its fixes.
+## Soul
 
-## Adversarial review command
+`omp/AGENTS.md` is the human part. Creative partner, not contractor: choose on merit rather than the literal mechanism, protect readability, one concept one home, Nix/Bun/Fish over Python, ask when intent is ambiguous, sign only when asked.
 
-`/review:adversarial [target or guidance]` acquires PR, branch, commit, Git/Jujutsu working-copy, path, URL, or custom targets—including targets outside the current directory—then runs dedicated architecture, reuse, idiom, quality, efficiency, and comment-style scouts in parallel. Structured findings are deduplicated and triaged in severity order; one OMP interview collects repair choices, only selected repairs are applied, and narrow validation follows. The command never stages or commits its fixes.
+## Context Mode
 
-## Pull request command
+Context Mode runs commands and processes files in a sandbox, returning only what matters, and keeps an FTS5 knowledge base for indexed content.
 
-`/pr [repository or guidance]` resolves a local GitHub repository without assuming the current directory, inspects committed changes against the merge base, and drafts the PR from the exact diff. It preserves local-only `dev/*` branches by creating a separate `pr/*` pointer, permits at most one non-force push, and creates the PR through OMP's native GitHub tool. Uncommitted changes are reported but excluded; files and commits are never changed.
+`nix/context-mode.nix` builds it from the pinned `context-mode` source input with bun2nix and the generated lock in `nix/locks/`. The `ompContextMode` activation script then merges it into two files with `jq`, preserving unrelated entries:
 
-## Validate
+- `~/.omp/agent/mcp.json` — stdio server entry pointing at the store path, with `CONTEXT_MODE_DIR` set to `~/.omp/context-mode/` so the search database stays mutable;
+- `~/.omp/plugins/package.json` — a `file:` dependency so OMP loads it as a plugin, backed by a `~/.omp/plugins/node_modules/context-mode` link.
 
-```sh
-nix flake check
-nix build
-nix run
+## Repo map
+
+```text
+flake.nix                     inputs, packages, apps, checks, formatter
+nix/default.nix               Home Manager module: settings, links, activation
+nix/context-mode.nix          bun2nix build of the pinned Context Mode source
+nix/locks/                    generated Bun lock
+omp/AGENTS.md                 global agent prompt
+omp/extensions/               caveman, ponytail, review-adversarial
+omp/extensions/lib/           shared prompt-toggle + review prompt
+omp/agents/                   6 review scouts, 3 cleanup scouts
+omp/commands/                 cleanup, pr
 ```
 
-Future extension migration belongs on top of this foundation, not inside an OMP fork.
+## Checks
+
+`nix flake check` runs upstream's own check, builds Context Mode, and evaluates the Home Manager module against a stub to assert the activation scripts, file links, and default/override precedence still hold. `nix fmt` runs `nixfmt` over every `.nix` file.
