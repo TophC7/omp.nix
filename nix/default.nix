@@ -70,6 +70,24 @@ in
     programs.omp.settings = {
       setupVersion = lib.mkDefault 2;
 
+      # Keep discovery isolated to mostly native OMP sources and OMP-installed plugins.
+      disabledProviders = lib.mkDefault [
+        "agent-plugins"
+        "agents"
+        "claude"
+        "claude-plugins"
+        "cline"
+        "codex"
+        "cursor"
+        "gemini"
+        "github"
+        "mcp-json"
+        "opencode"
+        "ssh-json"
+        "vscode"
+        "windsurf"
+      ];
+
       modelRoles.default = lib.mkDefault "openai-codex/gpt-5.6-sol";
       defaultThinkingLevel = lib.mkDefault "high";
 
