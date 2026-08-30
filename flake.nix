@@ -4,10 +4,18 @@
   inputs = {
     omp.url = "github:can1357/oh-my-pi";
     nixpkgs.follows = "omp/nixpkgs";
+    bun2nix.follows = "omp/bun2nix";
+
+    context-mode = {
+      url = "github:mksglu/context-mode/v1.0.169";
+      flake = false;
+    };
   };
 
   outputs =
     {
+      bun2nix,
+      context-mode,
       self,
       nixpkgs,
       omp,
@@ -15,16 +23,24 @@
     }:
     let
       system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
+      pkgs = import nixpkgs {
+        inherit system;
+        config.allowUnfreePredicate = package: nixpkgs.lib.getName package == "context-mode";
+      };
+      contextMode = pkgs.callPackage ./nix/context-mode.nix {
+        b2n = bun2nix.packages.${system}.default;
+        src = context-mode;
+      };
     in
     {
       homeManagerModules = {
-        omp = import ./nix { inherit omp; };
+        omp = import ./nix { inherit contextMode omp; };
         default = self.homeManagerModules.omp;
       };
 
       packages.${system} = {
         inherit (omp.packages.${system}) omp;
+        context-mode = contextMode;
         default = omp.packages.${system}.default;
       };
 
@@ -35,6 +51,7 @@
 
       checks.${system} = {
         inherit (omp.checks.${system}) omp;
+        context-mode = contextMode;
 
         module =
           let
@@ -43,6 +60,10 @@
               modules = [
                 {
                   options = {
+                    home.homeDirectory = pkgs.lib.mkOption {
+                      type = pkgs.lib.types.str;
+                      default = "/home/test";
+                    };
                     home.packages = pkgs.lib.mkOption {
                       type = pkgs.lib.types.listOf pkgs.lib.types.package;
                       default = [ ];
@@ -67,7 +88,9 @@
           in
           assert builtins.elem omp.packages.${system}.default evaluated.config.home.packages;
           assert evaluated.config.home.activation ? ompConfig;
-          assert evaluated.config.home.file ? ".omp/agent/AGENTS.md";
+          assert evaluated.config.home.activation ? ompContextMode;
+          assert evaluated.config.home.file ? ".omp/plugins/node_modules/context-mode";
+          assert evaluated.config.home.file ? ".omp/agent";
           assert evaluated.config.programs.omp.settings.modelRoles.default == "openai-codex/test-override";
           assert evaluated.config.programs.omp.settings.error.notify == "on";
           pkgs.runCommand "omp-nix-module" { } "touch $out";

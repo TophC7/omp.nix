@@ -48,6 +48,23 @@
         "type": "github"
       }
     },
+    "context-mode": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1782757075,
+        "narHash": "sha256-1pV56ZB2aqod+C0kb5myuiWLAJ7+opiaurwZZ3BGKYk=",
+        "owner": "mksglu",
+        "repo": "context-mode",
+        "rev": "589d8214d56740a28b5f7bf63167743d586b0b40",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mksglu",
+        "ref": "v1.0.169",
+        "repo": "context-mode",
+        "type": "github"
+      }
+    },
     "flake-parts": {
       "inputs": {
         "nixpkgs-lib": [
@@ -170,6 +187,11 @@
     },
     "root": {
       "inputs": {
+        "bun2nix": [
+          "omp",
+          "bun2nix"
+        ],
+        "context-mode": "context-mode",
         "nixpkgs": [
           "omp",
           "nixpkgs"

@@ -1,9 +1,68 @@
-{ omp }:
+{ contextMode, omp }:
 {
   config,
   lib,
+  pkgs,
   ...
 }:
+let
+  contextModeActivation = pkgs.writeShellScript "activate-omp-context-mode" ''
+    set -euo pipefail
+
+    mcp_config="$HOME/.omp/agent/mcp.json"
+    plugin_config="$HOME/.omp/plugins/package.json"
+    empty_json=${pkgs.writeText "omp-empty.json" "{}"}
+
+    ${pkgs.coreutils}/bin/mkdir -p "$HOME/.omp/agent" "$HOME/.omp/plugins"
+
+    mcp_tmp=""
+    plugin_tmp=""
+    cleanup() {
+      [[ -z "$mcp_tmp" ]] || ${pkgs.coreutils}/bin/rm -f "$mcp_tmp"
+      [[ -z "$plugin_tmp" ]] || ${pkgs.coreutils}/bin/rm -f "$plugin_tmp"
+    }
+    trap cleanup EXIT
+
+    mcp_source="$mcp_config"
+    if [[ ! -f "$mcp_source" ]]; then
+      mcp_source="$empty_json"
+    fi
+    mcp_tmp="$(${pkgs.coreutils}/bin/mktemp "$HOME/.omp/agent/.mcp.json.XXXXXX")"
+    ${pkgs.jq}/bin/jq \
+      --arg command "${lib.getExe contextMode}" \
+      --arg data_dir "${config.home.homeDirectory}/.omp/context-mode" '
+      .mcpServers = (.mcpServers // {}) |
+      .mcpServers["context-mode"] = {
+        type: "stdio",
+        command: $command,
+        env: {
+          CONTEXT_MODE_PLATFORM: "omp",
+          CONTEXT_MODE_DIR: $data_dir
+        }
+      }
+    ' "$mcp_source" > "$mcp_tmp"
+    ${pkgs.coreutils}/bin/chmod 600 "$mcp_tmp"
+    ${pkgs.coreutils}/bin/mv -f "$mcp_tmp" "$mcp_config"
+    mcp_tmp=""
+
+    plugin_source="$plugin_config"
+    if [[ ! -f "$plugin_source" ]]; then
+      plugin_source="$empty_json"
+    fi
+    plugin_tmp="$(${pkgs.coreutils}/bin/mktemp "$HOME/.omp/plugins/.package.json.XXXXXX")"
+    ${pkgs.jq}/bin/jq --arg source "file:${contextMode}" '
+      .name = (.name // "omp-plugins") |
+      .private = true |
+      .dependencies = (.dependencies // {}) |
+      .dependencies["context-mode"] = $source
+    ' "$plugin_source" > "$plugin_tmp"
+    ${pkgs.coreutils}/bin/chmod 600 "$plugin_tmp"
+    ${pkgs.coreutils}/bin/mv -f "$plugin_tmp" "$plugin_config"
+    plugin_tmp=""
+
+    trap - EXIT
+  '';
+in
 {
   imports = [ omp.homeManagerModules.default ];
 
@@ -48,7 +107,22 @@
       error.notify = lib.mkDefault "on";
       ask.notify = lib.mkDefault "on";
     };
+    home.packages = [ contextMode ];
 
-    home.file.".omp/agent/AGENTS.md".source = ./SOUL.md;
+    home.file = {
+      ".omp/plugins/node_modules/context-mode".source = contextMode;
+      ".omp/agent" = {
+        source = ../omp;
+        recursive = true;
+      };
+    };
+
+    # Preserve unrelated entries while refreshing the pinned Context Mode paths.
+    home.activation.ompContextMode = {
+      before = [ ];
+      after = [ "writeBoundary" ];
+      data = "run ${contextModeActivation}";
+    };
+
   };
 }
