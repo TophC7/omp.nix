@@ -10,6 +10,7 @@ This configuration provides:
 - native Caveman and Ponytail prompt toggles;
 - `/cleanup` with dedicated reuse, quality, and efficiency scouts;
 - `/review:adversarial` with six dedicated scouts, structured synthesis, and selected-fix triage;
+- `/pr` with exact committed-diff evidence, guarded branch handling, and native GitHub creation;
 - baseline model, thinking, appearance, and notification settings;
 - Toph's global Soul at `~/.omp/agent/AGENTS.md`;
 - module and package checks.
@@ -47,6 +48,10 @@ Caveman and Ponytail load as native OMP extensions. Both default to enabled and 
 ## Adversarial review command
 
 `/review:adversarial [target or guidance]` acquires PR, branch, commit, Git/Jujutsu working-copy, path, URL, or custom targets—including targets outside the current directory—then runs dedicated architecture, reuse, idiom, quality, efficiency, and comment-style scouts in parallel. Structured findings are deduplicated and triaged in severity order; one OMP interview collects repair choices, only selected repairs are applied, and narrow validation follows. The command never stages or commits its fixes.
+
+## Pull request command
+
+`/pr [repository or guidance]` resolves a local GitHub repository without assuming the current directory, inspects committed changes against the merge base, and drafts the PR from the exact diff. It preserves local-only `dev/*` branches by creating a separate `pr/*` pointer, permits at most one non-force push, and creates the PR through OMP's native GitHub tool. Uncommitted changes are reported but excluded; files and commits are never changed.
 
 ## Validate
 

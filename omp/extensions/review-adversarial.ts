@@ -7,7 +7,7 @@ function renderReviewPrompt(request?: string): string {
 
 export default function reviewAdversarialExtension(pi: ExtensionAPI): void {
 	pi.registerCommand("review:adversarial", {
-		description: "Run six-scope adversarial review over any OMP review target and apply selected fixes",
+		description: "Run six-scope adversarial review over any target and apply selected fixes",
 		handler: async (args, ctx: ExtensionCommandContext) => {
 			await ctx.waitForIdle();
 			pi.sendUserMessage(renderReviewPrompt(args?.trim()));
