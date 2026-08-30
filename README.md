@@ -9,6 +9,7 @@ This configuration provides:
 - Nix-managed Context Mode CLI, OMP plugin, and MCP registration;
 - native Caveman and Ponytail prompt toggles;
 - `/cleanup` with dedicated reuse, quality, and efficiency scouts;
+- `/review:adversarial` with six dedicated scouts, structured synthesis, and selected-fix triage;
 - baseline model, thinking, appearance, and notification settings;
 - Toph's global Soul at `~/.omp/agent/AGENTS.md`;
 - module and package checks.
@@ -42,6 +43,10 @@ Caveman and Ponytail load as native OMP extensions. Both default to enabled and 
 ## Cleanup command
 
 `/cleanup [focus]` reviews the complete working-tree diff with three dedicated read-only scouts running in parallel, then applies only safe, in-scope findings. The command preserves the original reuse, quality, and efficiency passes and never stages or commits its fixes.
+
+## Adversarial review command
+
+`/review:adversarial [target or guidance]` acquires PR, branch, commit, Git/Jujutsu working-copy, path, URL, or custom targets—including targets outside the current directory—then runs dedicated architecture, reuse, idiom, quality, efficiency, and comment-style scouts in parallel. Structured findings are deduplicated and triaged in severity order; one OMP interview collects repair choices, only selected repairs are applied, and narrow validation follows. The command never stages or commits its fixes.
 
 ## Validate
 
