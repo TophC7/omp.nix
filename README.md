@@ -10,7 +10,7 @@ Upstream OMP already ships its own Home Manager module and most of the runtime. 
 - **A Home Manager module** that imports upstream's module and layers personal defaults over it — every option stays overridable (`lib.mkDefault` throughout).
 - **Global agent identity** through `omp/AGENTS.md`, installed as `~/.omp/agent/AGENTS.md`.
 - **Two prompt toggles** (`/caveman`, `/ponytail`) that persist across sessions and branches.
-- **Two scout swarms** for review and cleanup, plus a PR command.
+- **Two scout swarms** for review and cleanup, plus commit and PR commands.
 - **Context Mode** built from a pinned source rev with bun2nix and registered as both an MCP server and an OMP plugin.
 
 ## Use
@@ -55,11 +55,12 @@ It also links `omp/` into `~/.omp/agent/` and installs Context Mode into the use
 | --- | --- |
 | `/review:adversarial [target]` | Acquires a review target — PR, merge base, staged/unstaged Git, Jujutsu working copy, a commit, paths, or an external repo — then runs six read-only scouts (architecture, reuse, idiom, quality, efficiency, comments) in one batch, synthesizes a verdict, and triages every actionable finding through one `ask` call before applying the chosen repairs. |
 | `/cleanup [focus]` | Pre-commit polish. Captures the full `git diff HEAD`, runs three scouts (reuse, quality, efficiency), applies only clearly-correct findings, and reports applied / skipped / worth-a-look. |
+| `/commit [guidance]` | Commits exactly the already-staged diff once with a conventional message. A dirty worktree is allowed; unstaged and untracked changes are warned about but excluded. |
 | `/pr [guidance]` | Drafts and opens a GitHub PR from committed merge-base changes. Treats `dev/*` as local-only and creates a `pr/*` pointer instead, never force-pushes, pushes at most once, and creates the PR through the native `github` tool. |
 
-All three stop short of staging, committing, or pushing your work; review and cleanup leave the tree for you to inspect.
+`/review:adversarial` and `/cleanup` never stage, commit, or push. `/commit` mutates only by committing the staged snapshot once; `/pr` works from committed changes and handles its remote branch.
 
-`/review:adversarial` is an extension so the prompt can be sent as a real user turn after `waitForIdle`; `/cleanup` and `/pr` are plain command markdown.
+`/review:adversarial` is an extension so the prompt can be sent as a real user turn after `waitForIdle`; `/cleanup`, `/commit`, and `/pr` are plain command markdown.
 
 ## Prompt toggles
 
@@ -94,7 +95,7 @@ omp/AGENTS.md                 global agent prompt
 omp/extensions/               caveman, ponytail, review-adversarial
 omp/extensions/lib/           shared prompt-toggle + review prompt
 omp/agents/                   6 review scouts, 3 cleanup scouts
-omp/commands/                 cleanup, pr
+omp/commands/                 cleanup, commit, pr
 ```
 
 ## Checks
