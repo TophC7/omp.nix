@@ -97,7 +97,11 @@ in
       modelRoles.default = lib.mkDefault "openai-codex/gpt-5.6-sol";
       defaultThinkingLevel = lib.mkDefault "high";
 
-      startup.quiet = lib.mkDefault true;
+      startup = {
+        quiet = lib.mkDefault true;
+        checkUpdate = lib.mkDefault false;
+        changelogMode = lib.mkDefault "summary";
+      };
       symbolPreset = lib.mkDefault "nerd";
       composer.shape = lib.mkDefault "claude";
       theme = {
@@ -106,10 +110,17 @@ in
       };
       statusLine = {
         preset = lib.mkDefault "default";
-        separator = lib.mkDefault "slash";
+        separator = lib.mkDefault "pipe";
+        sessionAccent = lib.mkDefault true;
+        compactThinkingLevel = lib.mkDefault true;
       };
-      terminal.showProgress = lib.mkDefault false;
-      tui.tight = lib.mkDefault false;
+      terminal.showProgress = lib.mkDefault true;
+      tui = {
+        tight = lib.mkDefault false;
+        resizeScrollback = lib.mkDefault "append";
+        textSizing = lib.mkDefault true;
+        hyperlinks = lib.mkDefault "always";
+      };
       display = {
         shimmer = lib.mkDefault "classic";
         showTokenUsage = lib.mkDefault true;
@@ -121,12 +132,23 @@ in
       steeringMode = lib.mkDefault "one-at-a-time";
 
       tools.approvalMode = lib.mkDefault "yolo";
-      bash.enabled = lib.mkDefault true;
+      bash = {
+        enabled = lib.mkDefault true;
+        direnv = lib.mkDefault "off";
+      };
       eval.py = lib.mkDefault false;
       python.kernelMode = lib.mkDefault "session";
       goal.enabled = lib.mkDefault false;
       task.eager = lib.mkDefault "default";
 
+      dev.autoqaConsent = lib.mkDefault "granted";
+      checkpoint.enabled = lib.mkDefault true;
+      github.enabled = lib.mkDefault true;
+      read.renderMarkdown = lib.mkDefault true;
+      memory.backend = lib.mkDefault "off";
+      treeFilterMode = lib.mkDefault "default";
+      marketplace.autoUpdate = lib.mkDefault "off";
+      features.unexpectedStopDetection = lib.mkDefault "mechanical";
       completion.notify = lib.mkDefault "on";
       error.notify = lib.mkDefault "on";
       ask.notify = lib.mkDefault "on";

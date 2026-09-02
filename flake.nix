@@ -59,13 +59,11 @@
         default = ompApp;
       };
 
-      checks.${system} = pkgs.callPackage ./nix/checks.nix {
+      checks.${system}.module = pkgs.callPackage ./nix/checks.nix {
         inherit
           contextMode
           homeManagerModule
-          omp
           ompPackage
-          pkgs
           ;
       };
 

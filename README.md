@@ -40,9 +40,11 @@ There are no options of our own. `programs.omp.*` is upstream's option set; anyt
 `nix/default.nix` writes the personal half of `programs.omp.settings`:
 
 - discovery isolated to native OMP sources and OMP-installed plugins — every foreign provider (`claude`, `codex`, `cursor`, `gemini`, `vscode`, `mcp-json`, …) is disabled;
-- `openai-codex/gpt-5.6-sol` as default model, `high` thinking, prose-only thinking blocks;
-- `yolo` tool approval, Bash on, Python eval off with a session-scoped kernel;
-- quiet startup, nerd symbols, Claude-shaped composer, token usage and turn time on screen;
+- `openai-codex/gpt-5.6-sol` as default model, `high` fallback thinking, prose-only thinking blocks;
+- `yolo` tool approval, Bash on with direnv integration off, Python eval off with a session-scoped kernel;
+- quiet startup without update checks, summary changelogs, nerd symbols, and a Claude-shaped composer;
+- pipe-separated accented status, compact thinking level, terminal progress, append-only resize scrollback, text sizing, hyperlinks, token usage, and turn time on screen;
+- AutoQA consent plus checkpoint, GitHub, and rendered-Markdown tools on; memory and marketplace auto-updates off; default tree filtering and mechanical unexpected-stop detection;
 - completion/error/ask desktop notifications on.
 
 It also links `omp/` into `~/.omp/agent/` and installs Context Mode into the user profile.
@@ -97,4 +99,4 @@ omp/commands/                 cleanup, pr
 
 ## Checks
 
-`nix flake check` runs upstream's own check, builds Context Mode, and evaluates the Home Manager module against a stub to assert the activation scripts, file links, and default/override precedence still hold. `nix fmt` runs `nixfmt` over every `.nix` file.
+`nix flake check` evaluates the exported packages and runs one Home Manager module smoke test covering package installation, activation/file wiring, and setting override precedence. `nix fmt` runs `nixfmt` over every `.nix` file.

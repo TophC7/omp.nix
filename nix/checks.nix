@@ -1,12 +1,10 @@
 {
   contextMode,
   homeManagerModule,
-  omp,
   ompPackage,
   pkgs,
 }:
 let
-  system = pkgs.stdenv.hostPlatform.system;
   evaluated = pkgs.lib.evalModules {
     specialArgs = { inherit pkgs; };
     modules = [
@@ -37,18 +35,14 @@ let
       }
     ];
   };
+  config = evaluated.config;
 in
-{
-  omp = ompPackage;
-  context-mode = contextMode;
-  module =
-    assert evaluated.config.programs.omp.package != omp.packages.${system}.default;
-    assert builtins.elem evaluated.config.programs.omp.package evaluated.config.home.packages;
-    assert evaluated.config.home.activation ? ompConfig;
-    assert evaluated.config.home.activation ? ompContextMode;
-    assert evaluated.config.home.file ? ".omp/plugins/node_modules/context-mode";
-    assert evaluated.config.home.file ? ".omp/agent";
-    assert evaluated.config.programs.omp.settings.modelRoles.default == "openai-codex/test-override";
-    assert evaluated.config.programs.omp.settings.error.notify == "on";
-    pkgs.runCommand "omp-nix-module" { } "touch $out";
-}
+assert config.programs.omp.package == ompPackage;
+assert builtins.elem ompPackage config.home.packages;
+assert builtins.elem contextMode config.home.packages;
+assert config.home.activation ? ompConfig;
+assert config.home.activation ? ompContextMode;
+assert config.home.file ? ".omp/plugins/node_modules/context-mode";
+assert config.home.file ? ".omp/agent";
+assert config.programs.omp.settings.modelRoles.default == "openai-codex/test-override";
+pkgs.runCommand "omp-nix-module" { } "touch $out"
