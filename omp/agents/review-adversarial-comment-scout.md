@@ -2,8 +2,7 @@
 name: review-adversarial-comment-scout
 description: Read-only /review:adversarial pass for stale, noisy, misleading, or missing why-comments
 tools: read, grep, glob
-model: "@slow"
-thinking: high
+model: "@default"
 blocking: true
 read-summarize: false
 output:

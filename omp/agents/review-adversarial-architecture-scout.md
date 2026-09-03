@@ -2,8 +2,7 @@
 name: review-adversarial-architecture-scout
 description: Read-only /review:adversarial pass for architecture fit, ownership, boundaries, and seams
 tools: read, grep, glob, lsp, ast_grep
-model: "@slow"
-thinking: high
+model: "@review"
 blocking: true
 read-summarize: false
 output:

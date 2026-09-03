@@ -94,7 +94,17 @@ in
         "windsurf"
       ];
 
-      modelRoles.default = lib.mkDefault "openai-codex/gpt-5.6-sol";
+      modelRoles = {
+        default = lib.mkDefault "google-antigravity/gemini-3.8-flash-high:high";
+        smol = lib.mkDefault "openai-codex/gpt-5.6-luna:max";
+        slow = lib.mkDefault "anthropic/claude-fable-5-1:high";
+        plan = lib.mkDefault "openai-codex/gpt-5.6-sol:xhigh";
+        designer = lib.mkDefault "anthropic/claude-opus-5:high";
+        commit = lib.mkDefault "google-antigravity/gemini-3.8-flash-low:low";
+        tiny = lib.mkDefault "openai-codex/gpt-5.3-codex-spark";
+        review = lib.mkDefault "anthropic/claude-fable-5-1:low";
+        task = lib.mkDefault "openai-codex/gpt-5.6-sol:medium";
+      };
       defaultThinkingLevel = lib.mkDefault "high";
 
       startup = {
@@ -139,7 +149,10 @@ in
       eval.py = lib.mkDefault false;
       python.kernelMode = lib.mkDefault "session";
       goal.enabled = lib.mkDefault false;
-      task.eager = lib.mkDefault "default";
+      task = {
+        eager = lib.mkDefault "default";
+        agentModelOverrides.scout = lib.mkDefault "@default";
+      };
 
       dev.autoqaConsent = lib.mkDefault "granted";
       checkpoint.enabled = lib.mkDefault true;

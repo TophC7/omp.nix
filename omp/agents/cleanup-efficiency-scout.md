@@ -2,7 +2,7 @@
 name: cleanup-efficiency-scout
 description: Read-only review pass for /cleanup; flags wasted work, missed concurrency, and hot-path bloat
 tools: read, grep, glob
-thinking: high
+model: "@smol"
 blocking: true
 read-summarize: false
 ---

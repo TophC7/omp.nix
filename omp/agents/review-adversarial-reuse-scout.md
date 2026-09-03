@@ -2,8 +2,7 @@
 name: review-adversarial-reuse-scout
 description: Read-only /review:adversarial pass for existing primitive and project-pattern reuse
 tools: read, grep, glob, lsp, ast_grep
-model: "@slow"
-thinking: high
+model: "@default"
 blocking: true
 read-summarize: false
 output:
