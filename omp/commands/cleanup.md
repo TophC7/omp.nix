@@ -1,22 +1,23 @@
 ---
-description: Review changed files for reuse, quality, and efficiency, then apply safe fixes.
+description: Review working-tree changes or commits from a hash up for reuse, quality, and efficiency, then apply safe fixes.
 ---
 
-Run the cleanup workflow against the current working tree.
+Run the cleanup workflow against the current working tree or an inclusive commit range through HEAD.
 
-Optional user focus: $ARGUMENTS
-Treat an empty value as no additional focus.
+Optional commit and user focus: $ARGUMENTS
+If arguments include a commit, review from that commit forward. Remaining text is focus.
 
 1. Confirm the current directory is inside a Git repository. If not, stop with `/cleanup requires a git repository.`
-2. Read `git status --porcelain`. If it is empty, stop with `/cleanup: no working-tree changes to review.`
-3. Capture the exact, complete `git diff HEAD`. Do not summarize or truncate it. If it is empty, stop with `/cleanup: working tree changes produced an empty diff.`
-4. Launch exactly one parallel `task` batch containing these three agents:
+2. Capture the exact, complete diff without truncating or summarizing:
+   - If a commit is given: diff from that commit through HEAD (`git diff <commit>^..HEAD`). Stop if invalid or empty.
+   - Otherwise: read `git status --porcelain`. If empty, stop with `/cleanup: no working-tree changes to review.` Capture `git diff HEAD`. If empty, stop with `/cleanup: working tree changes produced an empty diff.`
+3. Launch exactly one parallel `task` batch containing these three agents:
    - `cleanup-reuse-scout`
    - `cleanup-quality-scout`
    - `cleanup-efficiency-scout`
-5. Give every scout the same full diff through one artifact or file path, plus the optional user focus. Each task must tell the scout to read that diff, inspect the repository where needed, and return findings only. Do not launch any other review agent.
-6. Wait for all three scouts. If you created a temporary filesystem diff, remove it after every scout has finished.
-7. Apply the combined findings directly to the working tree.
+4. Give every scout the same full diff through one artifact or file path, plus any optional user focus. Each task must tell the scout to read that diff, inspect the repository where needed, and return findings only. Do not launch any other review agent.
+5. Wait for all three scouts. If you created a temporary filesystem diff, remove it after every scout has finished.
+6. Apply the combined findings directly to the working tree.
 
 Apply rules:
 1. Do not re-derive findings unless needed to verify safety.
