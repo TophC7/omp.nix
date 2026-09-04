@@ -105,6 +105,12 @@ in
         review = lib.mkDefault "anthropic/claude-fable-5-1:low";
         task = lib.mkDefault "openai-codex/gpt-5.6-sol:medium";
       };
+      cycleOrder = lib.mkDefault [
+        "default"
+        "smol"
+        "task"
+        "designer"
+      ];
       defaultThinkingLevel = lib.mkDefault "high";
 
       startup = {
