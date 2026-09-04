@@ -54,7 +54,7 @@ It also links `omp/` into `~/.omp/agent/` and installs Context Mode into the use
 | Command | What it does |
 | --- | --- |
 | `/review:adversarial [target]` | Acquires a review target — PR, merge base, staged/unstaged Git, Jujutsu working copy, a commit, paths, or an external repo — then runs six read-only scouts (architecture, reuse, idiom, quality, efficiency, comments) in one batch, synthesizes a verdict, and triages every actionable finding through one `ask` call before applying the chosen repairs. |
-| `/cleanup [commit] [focus]` | Pre-commit polish. Captures working-tree changes or an inclusive diff from a commit through `HEAD`, runs three scouts (reuse, quality, efficiency), and applies safe fixes directly. |
+| `/cleanup [commit] [focus]` | Pre-commit polish. Captures working-tree changes or an inclusive diff from a commit through `HEAD`, runs four scouts (reuse, quality, efficiency, advisor), applies safe fixes directly, and routes advisor findings (regressions, broken caller contracts, edge cases, races, seam violations) to a "Worth a look" list for human review. |
 | `/commit [guidance]` | Commits exactly the already-staged diff once with a conventional message. A dirty worktree is allowed; unstaged and untracked changes are warned about but excluded. |
 | `/pr [guidance]` | Opens a GitHub PR from committed changes. Uses the current feature branch, or creates a work-named `pr/*` branch when run from `main` or `dev/*`. |
 

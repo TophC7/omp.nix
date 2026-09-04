@@ -2,7 +2,7 @@
 name: cleanup-quality-scout
 description: Read-only review pass for /cleanup; flags dead code, debug remnants, slop, and hacky patterns
 tools: read, grep, glob
-model: "@default"
+model: "@bard"
 blocking: true
 read-summarize: false
 ---

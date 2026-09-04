@@ -70,6 +70,12 @@ in
 {
   imports = [ omp.homeManagerModules.default ];
 
+  options.programs.omp.models = lib.mkOption {
+    type = (pkgs.formats.yaml { }).type;
+    default = { };
+    description = "Declarative configuration written to ~/.omp/agent/models.yml";
+  };
+
   config = lib.mkIf config.programs.omp.enable {
     programs.omp.package = lib.mkDefault ompPackage;
 
@@ -96,20 +102,22 @@ in
 
       modelRoles = {
         default = lib.mkDefault "google-antigravity/gemini-3.8-flash-high:high";
-        smol = lib.mkDefault "openai-codex/gpt-5.6-luna:max";
-        slow = lib.mkDefault "anthropic/claude-fable-5-1:high";
-        plan = lib.mkDefault "openai-codex/gpt-5.6-sol:xhigh";
+        smol = lib.mkDefault "openai-codex/gpt-5.6-luna:xhigh";
+        plan = lib.mkDefault "anthropic/claude-fable-5-1:medium";
         designer = lib.mkDefault "anthropic/claude-opus-5:high";
         commit = lib.mkDefault "google-antigravity/gemini-3.8-flash-low:low";
         tiny = lib.mkDefault "openai-codex/gpt-5.3-codex-spark";
-        review = lib.mkDefault "anthropic/claude-fable-5-1:low";
-        task = lib.mkDefault "openai-codex/gpt-5.6-sol:medium";
+        review = lib.mkDefault "openai-codex/gpt-5.6-sol:xhigh";
+        task = lib.mkDefault "openai-codex/gpt-5.6-sol:high";
+        bard = lib.mkDefault "google-antigravity/gemini-3.8-flash-high:high";
       };
       cycleOrder = lib.mkDefault [
         "default"
         "smol"
         "task"
+        "plan"
         "designer"
+        "bard"
       ];
       defaultThinkingLevel = lib.mkDefault "high";
 
@@ -157,7 +165,7 @@ in
       goal.enabled = lib.mkDefault false;
       task = {
         eager = lib.mkDefault "default";
-        agentModelOverrides.scout = lib.mkDefault "@default";
+        agentModelOverrides.scout = lib.mkDefault "@bard";
       };
 
       dev.autoqaConsent = lib.mkDefault "granted";
@@ -172,6 +180,11 @@ in
       error.notify = lib.mkDefault "on";
       ask.notify = lib.mkDefault "on";
     };
+    programs.omp.models = {
+      providers.openai-codex.modelOverrides."gpt-5.6-luna".compat.extraBody.service_tier =
+        lib.mkDefault "priority";
+    };
+
     home.packages = [ contextMode ];
 
     home.file = {
@@ -180,6 +193,9 @@ in
         source = ../omp;
         recursive = true;
       };
+      ".omp/agent/models.yml".source = lib.mkDefault (
+        (pkgs.formats.yaml { }).generate "omp-models.yml" config.programs.omp.models
+      );
     };
 
     # Preserve unrelated entries while refreshing the pinned Context Mode paths.

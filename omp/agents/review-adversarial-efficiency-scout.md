@@ -2,7 +2,7 @@
 name: review-adversarial-efficiency-scout
 description: Read-only /review:adversarial pass for wasted work, missed concurrency, and hot-path bloat
 tools: read, grep, glob, lsp, ast_grep
-model: "@smol"
+model: "@task"
 blocking: true
 read-summarize: false
 output:

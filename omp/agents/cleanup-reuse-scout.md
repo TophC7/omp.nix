@@ -2,7 +2,7 @@
 name: cleanup-reuse-scout
 description: Read-only review pass for /cleanup; flags new code that should reuse existing utilities
 tools: read, grep, glob
-model: "@default"
+model: "@bard"
 blocking: true
 read-summarize: false
 ---

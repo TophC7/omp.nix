@@ -2,7 +2,7 @@
 name: review-adversarial-quality-scout
 description: Read-only /review:adversarial pass for defects, dead code, debug remnants, and maintenance slop
 tools: read, grep, glob, lsp, ast_grep
-model: "@smol"
+model: "@task"
 blocking: true
 read-summarize: false
 output:
