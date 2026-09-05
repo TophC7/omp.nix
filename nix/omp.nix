@@ -27,5 +27,4 @@ upstreamPackage.overrideAttrs (old: {
     else
       old.bunDeps;
   bunInstallFlags = lib.unique ((old.bunInstallFlags or [ ]) ++ [ "--offline" ]);
-  patches = (old.patches or [ ]) ++ [ ./patches/context-icon.patch ];
 })
